@@ -1,14 +1,17 @@
-CREATE DATABASE IF NOT EXISTS ntasks;
+CREATE DATABASE IF NOT EXISTS nnotes;
 
-USE ntasks;
+USE nnotes;
 
-CREATE TABLE IF NOT EXISTS tasks(
+CREATE TABLE IF NOT EXISTS notes(
 		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		name VARCHAR(100) NOT NULL,
 		group_id INT NOT NULL,
 		reminder_id INT NOT NULL,
 		active TINYINT NOT NULL DEFAULT 1,
 		created_on DATE NOT NULL DEFAULT NOW(),
+		effective_from DATE,
+		disp_order INT NOT NULL DEFAULT 0,
+		notes_type VARCHAR(1) NOT NULL, -- T: Tasks, L: Lists
 		FOREIGN KEY(group_id) REFERENCES groups(id),
 		FOREIGN KEY(reminder_id) REFERENCES reminders(id)
 	);
@@ -17,14 +20,15 @@ CREATE TABLE IF NOT EXISTS tasks(
 CREATE TABLE IF NOT EXISTS groups(
 		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		name VARCHAR(100) NOT NULL,
+		disp_order INT NOT NULL DEFAULT 0,
 		active TINYINT NOT NULL DEFAULT 1
 	);
 
 CREATE TABLE IF NOT EXISTS reminders(
 		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 		name VARCHAR(200) NOT NULL, 
-		--params VARCHAR(100), --(for future)
-		frequency TINYINT NOT NULL DEFAULT 0, -- Is frequently used? if 1: display on screen, 0: display under more reminders option
+		params VARCHAR(100), --(for future use)
+		frequency TINYINT NOT NULL DEFAULT 0, -- increment by 1 for each usage, max 4 values: display on screen, others: display under more reminders option
 		active TINYINT NOT NULL DEFAULT 1
 	);
 	
@@ -35,28 +39,28 @@ CREATE TABLE IF NOT EXISTS reminders(
 		-- c) Weekday<=5, Weekend>5
 		-- d) alternate_weekdays 1: [M, W, F] (Odd numbers based on b) 2: T, T (Even numbers based on b)
 		-- e) all reminders are based on the task created_on value
-INSERT INTO reminders(id, name) VALUES(0, 'none');
-INSERT INTO reminders(id, name) VALUES(0, 'daily');
-INSERT INTO reminders(id, name) VALUES(0, 'alternate_days');
-INSERT INTO reminders(id, name) VALUES(0, 'all_weekdays');
-INSERT INTO reminders(id, name) VALUES(0, 'alternate_weekdays');
-INSERT INTO reminders(id, name) VALUES(0, 'weekends');
-INSERT INTO reminders(id, name) VALUES(0, 'once_weekly');
---INSERT INTO reminders(id, name) VALUES(0, 'bi_weekly'); -- need addtional data. (for future)
-INSERT INTO reminders(id, name) VALUES(0, 'fortnightly');
-INSERT INTO reminders(id, name) VALUES(0, 'once_monthly');
-INSERT INTO reminders(id, name) VALUES(0, 'last-day_monthly');
-INSERT INTO reminders(id, name) VALUES(0, 'last-weekday_monthly');
---INSERT INTO reminders(id, name) VALUES(0, 'bi_monthly'); -- need addtional data. (for future)
-INSERT INTO reminders(id, name) VALUES(0, 'quaterly');
-INSERT INTO reminders(id, name) VALUES(0, 'yearly');
+INSERT INTO reminders(name) VALUES('none');
+INSERT INTO reminders(name) VALUES('daily');
+INSERT INTO reminders(name) VALUES('alternate_days');
+INSERT INTO reminders(name) VALUES('all_weekdays');
+INSERT INTO reminders(name) VALUES('alternate_weekdays');
+INSERT INTO reminders(name) VALUES('weekends');
+INSERT INTO reminders(name) VALUES('once_weekly');
+INSERT INTO reminders(name, active) VALUES('bi_weekly', 0); -- need addtional data. (for future use)
+INSERT INTO reminders(name) VALUES('fortnightly');
+INSERT INTO reminders(name) VALUES('once_monthly');
+INSERT INTO reminders(name) VALUES('last-day_monthly');
+INSERT INTO reminders(name) VALUES('last-weekday_monthly');
+INSERT INTO reminders(name, active) VALUES('bi_monthly', 0); -- need addtional data. (for future use)
+INSERT INTO reminders(name) VALUES('quaterly');
+INSERT INTO reminders(name) VALUES('yearly');
 	
 CREATE TABLE IF NOT EXISTS notifications(
 		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-		tasks_id INT NOT NULL, 
+		notes_id INT NOT NULL, 
 		next_reminder DATE NOT NULL,
 		active TINYINT NOT NULL DEFAULT 1,
-		FOREIGN KEY(tasks_id) REFERENCES tasks(id)
+		FOREIGN KEY(notes_id) REFERENCES notes(id)
 	);
 	
 CREATE TABLE IF NOT EXISTS tags(
@@ -65,11 +69,11 @@ CREATE TABLE IF NOT EXISTS tags(
 		active TINYINT NOT NULL DEFAULT 1
 	);
 	
-CREATE TABLE IF NOT EXISTS map_tags_tasks(
+CREATE TABLE IF NOT EXISTS map_tags_notes(
 		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-		tasks_id INT NOT NULL, 
+		notes_id INT NOT NULL, 
 		tags_id INT NOT NULL,
-		FOREIGN KEY(tasks_id) REFERENCES tasks(id),
+		FOREIGN KEY(notes_id) REFERENCES notes(id),
 		FOREIGN KEY(tags_id) REFERENCES tags(id)
 	);
 
