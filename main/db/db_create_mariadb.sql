@@ -3,34 +3,33 @@ CREATE DATABASE IF NOT EXISTS nnotes;
 USE nnotes;
 
 CREATE TABLE IF NOT EXISTS notes(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-		name VARCHAR(100) NOT NULL,
-		group_id INT NOT NULL,
-		reminder_id INT NOT NULL,
-		active TINYINT NOT NULL DEFAULT 1,
-		created_on DATE NOT NULL DEFAULT NOW(),
-		effective_from DATE,
-		disp_order INT NOT NULL DEFAULT 0,
-		notes_type VARCHAR(1) NOT NULL, -- T: Tasks, L: Lists
-		FOREIGN KEY(group_id) REFERENCES groups(id),
-		FOREIGN KEY(reminder_id) REFERENCES reminders(id)
-	);
-	
-	
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(100) NOT NULL,
+	group_id INT NOT NULL,
+	reminder_id INT NOT NULL,
+	active TINYINT NOT NULL DEFAULT 1,
+	created_on DATE NOT NULL DEFAULT NOW(),
+	effective_from DATE,
+	disp_order INT NOT NULL DEFAULT 0,
+	notes_type VARCHAR(1) NOT NULL, -- T: Tasks, L: Lists
+	FOREIGN KEY(group_id) REFERENCES groups(id),
+	FOREIGN KEY(reminder_id) REFERENCES reminders(id)
+);
+
 CREATE TABLE IF NOT EXISTS groups(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-		name VARCHAR(100) NOT NULL,
-		disp_order INT NOT NULL DEFAULT 0,
-		active TINYINT NOT NULL DEFAULT 1
-	);
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(100) NOT NULL,
+	disp_order INT NOT NULL DEFAULT 0,
+	active TINYINT NOT NULL DEFAULT 1
+);
 
 CREATE TABLE IF NOT EXISTS reminders(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-		name VARCHAR(200) NOT NULL, 
-		params VARCHAR(100), --(for future use)
-		frequency TINYINT NOT NULL DEFAULT 0, -- increment by 1 for each usage, max 4 values: display on screen, others: display under more reminders option
-		active TINYINT NOT NULL DEFAULT 1
-	);
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(200) NOT NULL, 
+	params VARCHAR(100), --(for future use)
+	frequency TINYINT NOT NULL DEFAULT 0, -- increment by 1 for each usage, max 4 values: display on screen, others: display under more reminders option
+	active TINYINT NOT NULL DEFAULT 1
+);
 	
 --reminders 
 	--Note:
@@ -56,25 +55,34 @@ INSERT INTO reminders(name) VALUES('quaterly');
 INSERT INTO reminders(name) VALUES('yearly');
 	
 CREATE TABLE IF NOT EXISTS notifications(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-		notes_id INT NOT NULL, 
-		next_reminder DATE NOT NULL,
-		active TINYINT NOT NULL DEFAULT 1,
-		FOREIGN KEY(notes_id) REFERENCES notes(id)
-	);
-	
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+	notes_id INT NOT NULL, 
+	next_reminder DATE NOT NULL,
+	active TINYINT NOT NULL DEFAULT 1,
+	FOREIGN KEY(notes_id) REFERENCES notes(id)
+);
+
 CREATE TABLE IF NOT EXISTS tags(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-		name INT NOT NULL, 
-		active TINYINT NOT NULL DEFAULT 1
-	);
-	
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+	name VARCHAR(200) NOT NULL,  
+	active TINYINT NOT NULL DEFAULT 1
+);
+
 CREATE TABLE IF NOT EXISTS map_tags_notes(
-		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-		notes_id INT NOT NULL, 
-		tags_id INT NOT NULL,
-		FOREIGN KEY(notes_id) REFERENCES notes(id),
-		FOREIGN KEY(tags_id) REFERENCES tags(id)
-	);
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+	notes_id INT NOT NULL, 
+	tags_id INT NOT NULL,
+	FOREIGN KEY(notes_id) REFERENCES notes(id),
+	FOREIGN KEY(tags_id) REFERENCES tags(id)
+);
+	
+CREATE TABLE IF NOT EXISTS list_items(
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(200) NOT NULL,
+	status TINYINT NOT NULL DEFAULT 0,
+	notes_id INT NOT NULL,
+	disp_order INT NOT NULL DEFAULT 0,
+	FOREIGN KEY(notes_id) REFERENCES notes(id)
+);
 
 COMMIT;
